@@ -1,9 +1,8 @@
 var http = require('http')
+var key = require('./key/key.js')
 
 var type = process.argv[2]
 var word = process.argv[3]
-
-key = "api key value"
 
 switch(type) {
   case "syn" :

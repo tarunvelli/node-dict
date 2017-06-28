@@ -4,6 +4,7 @@
   "description": "command line dictionary",
   "main": "index.js",
   "scripts": {
+    "postinstall":"echo 'module.exports = \"api key value\";' >> key/key.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
