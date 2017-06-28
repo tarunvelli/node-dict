@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var http = require('http')
 var key = require('./key/key.js')
 
