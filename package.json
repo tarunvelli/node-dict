@@ -1,0 +1,24 @@
+{
+  "name": "node-dict",
+  "version": "1.0.0",
+  "description": "command line dictionary",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarunvelli/node-dict.git"
+  },
+  "keywords": [
+    "dictionary",
+    "node",
+    "wordnik"
+  ],
+  "author": "Tarun Velli",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tarunvelli/node-dict/issues"
+  },
+  "homepage": "https://github.com/tarunvelli/node-dict#readme"
+}
