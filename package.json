@@ -2,14 +2,15 @@
   "name": "node-dict",
   "version": "1.0.0",
   "description": "command line dictionary",
-  "main": "index.js",
+  "main": "dict.js",
   "scripts": {
-    "postinstall":"echo 'module.exports = \"api key value\";' > key/key.js",
+    "install":"echo 'module.exports = \"api key value\";' > key/key.js",
+    "postinstall":"chmod +x dict.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "preferGlobal": false,
   "bin": {
-    "node-dict":"index.js"
+    "node-dict":"dict.js"
   },
   "repository": {
     "type": "git",

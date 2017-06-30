@@ -73,6 +73,12 @@ commands["dict"] = function() {
   commands["ex"]()
 }
 
+// play command
+
+commands["play"] = function() {
+  // TODO implement play method
+}
+
 // http GET request
 
 function getData(url, print, txt) {

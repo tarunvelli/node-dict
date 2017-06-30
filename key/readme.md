@@ -1,4 +1,4 @@
-API key to be included in key/key.js as
+API key to be entered in key/key.js as
 
 ` module.exports = "value"; `
 
