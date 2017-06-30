@@ -17,30 +17,50 @@ var commands = {}
 
 commands["syn"] = function() {
   url = '/v4/word.json/'+word+'/relatedWords?relationshipTypes=synonym&api_key='+key
-  getData(url,print)
+  txt="Synonyms for \""+word+"\" are :\n\n"
+  getData(url,prettyPrint,txt)
 }
 
 commands["ant"] = function() {
   url = '/v4/word.json/'+word+'/relatedWords?relationshipTypes=antonym&api_key='+key
-  getData(url,print)
+  txt="Antonyms for \""+word+"\" are :\n\n"
+  getData(url,prettyPrint,txt)
 }
 
 commands["def"] = function() {
   url = '/v4/word.json/'+word+'/definitions?limit=5&api_key='+key
-  getData(url,print)
+  txt="Definitions for \""+word+"\" are :\n\n"
+  getData(url,localPrint, txt)
+
+  function localPrint(info, txt) {
+    info = JSON.parse(info)
+    var index = 1
+    info.map( function(x) {txt += index++ +") "+x["text"]+"\n\n"} )
+    console.log(txt)
+  }
 }
 
 commands["ex"] = function() {
   url = '/v4/word.json/'+word+'/examples?limit=5&api_key='+key
-  getData(url,print)
+  txt="Examples for \""+word+"\" are :\n\n"
+  getData(url,localPrint, txt)
+
+  function localPrint(info, txt) {
+    info = JSON.parse(info)["examples"]
+    var index = 1
+    info.map( function(x) {txt += index++ +") "+x["text"]+"\n\n"} )
+    console.log(txt)
+  }
 }
 
 commands["wotd"] = function() {
   url = '/v4/words.json/wordOfTheDay?date='+date+'&api_key='+key
-  getData(url,callback)
+  txt="Word of the day is : "
+  getData(url, callback, txt)
 
-  function callback(info) {
+  function callback(info, txt) {
     word = JSON.parse(info)["word"]
+    console.log(txt +" "+ word +"\n\n")
     commands["dict"]()
   }
 }
@@ -55,7 +75,7 @@ commands["dict"] = function() {
 
 // http GET request
 
-function getData(url, print) {
+function getData(url, print, txt) {
 
   var options = {
     host : 'api.wordnik.com',
@@ -66,7 +86,7 @@ function getData(url, print) {
 
   http.request(options, function(res) {
     res.on('data', function (info) {
-      print(info)
+      print(info, txt)
     });
   }).end();
 
@@ -74,9 +94,14 @@ function getData(url, print) {
 
 // printing function
 
-function print(info) {
-  info = JSON.parse(info)
-  console.log(info)
+function prettyPrint(info, txt) {
+  info=JSON.parse(info)
+  var index = 1
+  if (info.length>=1) {
+    info = info[0]["words"]
+    info.map(function(x) { txt += index++ +") "+x+"\n"})
+  }
+  console.log(txt)
 }
 
 // execute command
