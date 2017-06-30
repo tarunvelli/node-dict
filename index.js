@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 var http = require('http')
 var key = require('./key/key.js')
+var date = new Date()
+date = date.getUTCFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()
 
 var type = process.argv[2]
 var word = process.argv[3]
+
+if (type==null) {
+  type="wotd"
+}
 
 // Command definitions
 
@@ -27,6 +33,19 @@ commands["def"] = function() {
 commands["ex"] = function() {
   url = 'http://api.wordnik.com:80/v4/word.json/'+word+'/examples?limit=5&api_key='+key
   getData(url)
+}
+
+commands["wotd"] = function() {
+  url = 'http://api.wordnik.com:80/v4/words.json/wordOfTheDay?date='+date+'&api_key='+key
+  getData(url)
+}
+
+commands["dict"] = function() {
+  // TODO print the output in sequence
+  commands["def"]()
+  commands["syn"]()
+  commands["ant"]()
+  commands["ex"]()
 }
 
 // http GET request
