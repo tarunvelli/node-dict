@@ -8,7 +8,7 @@ var type = process.argv[2]
 var word = process.argv[3]
 
 if (type==null) {
-  type="wotd"
+  type="wotd" //word of the day
 }
 
 // Command definitions
@@ -30,35 +30,21 @@ commands["ant"] = function() {
 commands["def"] = function() {
   url = '/v4/word.json/'+word+'/definitions?limit=5&api_key='+key
   txt="Definitions for \""+word+"\" are :\n\n"
-  getData(url,localPrint, txt)
-
-  function localPrint(info, txt) {
-    info = JSON.parse(info)
-    var index = 1
-    info.map( function(x) {txt += index++ +") "+x["text"]+"\n\n"} )
-    console.log(txt)
-  }
+  getData(url,prettyPrint2,txt,"def")
 }
 
 commands["ex"] = function() {
   url = '/v4/word.json/'+word+'/examples?limit=5&api_key='+key
   txt="Examples for \""+word+"\" are :\n\n"
-  getData(url,localPrint, txt)
-
-  function localPrint(info, txt) {
-    info = JSON.parse(info)["examples"]
-    var index = 1
-    info.map( function(x) {txt += index++ +") "+x["text"]+"\n\n"} )
-    console.log(txt)
-  }
+  getData(url,prettyPrint2,txt,"ex")
 }
 
 commands["wotd"] = function() {
   url = '/v4/words.json/wordOfTheDay?date='+date+'&api_key='+key
   txt="Word of the day is : "
-  getData(url, callback, txt)
+  getData(url,localPrint,txt)
 
-  function callback(info, txt) {
+  function localPrint(info,txt) {
     word = JSON.parse(info)["word"]
     console.log(txt +" "+ word +"\n\n")
     commands["dict"]()
@@ -66,22 +52,29 @@ commands["wotd"] = function() {
 }
 
 commands["dict"] = function() {
-  // TODO print the output in sequence
+  // TO DO print the output in sequence
   commands["def"]()
   commands["syn"]()
   commands["ant"]()
   commands["ex"]()
 }
 
-// play command
-
 commands["play"] = function() {
-  // TODO implement play method
+  url = '/v4/words.json/randomWord?hasDictionaryDef=true&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key='+key
+  getData(url, playFunction)
+}
+
+// play
+
+function playFunction(info) {
+  word = JSON.parse(info)["word"]
+  console.log(word);
+  // TODO write the rest of the fundtion
 }
 
 // http GET request
 
-function getData(url, print, txt) {
+function getData(url, next, txt, id) {
 
   var options = {
     host : 'api.wordnik.com',
@@ -91,10 +84,14 @@ function getData(url, print, txt) {
   };
 
   http.request(options, function(res) {
-    res.on('data', function (info) {
-      print(info, txt)
+    var responseString = '';
+    res.on('data', function(data) {
+      responseString += data;
     });
-  }).end();
+    res.on('end', function() {
+      next(responseString, txt, id)
+    });
+  }).end()
 
 }
 
@@ -107,6 +104,20 @@ function prettyPrint(info, txt) {
     info = info[0]["words"]
     info.map(function(x) { txt += index++ +") "+x+"\n"})
   }
+  console.log(txt)
+}
+
+function prettyPrint2(info, txt, id) {
+
+  if (id=="ex") {
+    info = JSON.parse(info)["examples"]
+  }
+  else if(id=="def"){
+    info = JSON.parse(info)
+  }
+
+  var index = 1
+  info.map(function(x) {txt += index++ +") "+x["text"]+"\n\n"})
   console.log(txt)
 }
 
