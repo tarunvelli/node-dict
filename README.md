@@ -57,43 +57,43 @@ node-dict syn word
 ## DOCS
 > The examples here are run with the shorthand ./dict.js in the node-dict directory
 
-+ *Definitions*
++ **Definitions**
 
 Get definitions of a word
 ```shell
 ./dict.js def word
 ```
 
-+ *Synonyms*
++ **Synonyms**
 
 To get synonyms of a word
 ```shell
 ./dict.js syn word
 ```
 
-+ *Antonyms*
++ **Antonyms**
 
 Get antonyms of a word
 ```shell
 ./dict.js ant word
 ```
 
-+ *Examples*
++ **Examples**
 
 Get examples of a word
 ```shell
 ./dict.js ex word
 ```
 
-+ *All related info*
++ **All related info**
 
 Get all the related info of a word,
-i.e. definitions, synonyms, antonyms and examples
+in order of : - definitions, synonyms, antonyms and examples
 ```shell
 ./dict.js dict word
 ```
 
-+ *Word of the day*
++ **Word of the day**
 
 Get all the related info of the word of the day,
 i.e. definitions, synonyms, antonyms and examples
@@ -101,11 +101,13 @@ i.e. definitions, synonyms, antonyms and examples
 ./dict.js
 ```
 
-+ *Play game*
++ **Play game**
 
 Play a word guessing game
 ```shell
 ./dict.js play
 ```
+
+
 
 **Made with wordnik api**

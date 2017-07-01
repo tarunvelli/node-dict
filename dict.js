@@ -18,25 +18,25 @@ var commands = {}
 commands["syn"] = function(callback) {
   url = '/v4/word.json/'+word+'/relatedWords?relationshipTypes=synonym&api_key='+key
   txt="Synonyms for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint,txt,callback)
+  getData(url,prettyFormat,txt,callback,"syn")
 }
 
 commands["ant"] = function(callback) {
   url = '/v4/word.json/'+word+'/relatedWords?relationshipTypes=antonym&api_key='+key
   txt="Antonyms for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint,txt,callback)
+  getData(url,prettyFormat,txt,callback,"ant")
 }
 
 commands["def"] = function(callback) {
   url = '/v4/word.json/'+word+'/definitions?limit=5&api_key='+key
   txt="Definitions for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint2,txt,callback,"def")
+  getData(url,prettyFormat,txt,callback,"def")
 }
 
 commands["ex"] = function(callback) {
   url = '/v4/word.json/'+word+'/examples?limit=5&api_key='+key
   txt="Examples for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint2,txt,callback,"ex")
+  getData(url,prettyFormat,txt,callback,"ex")
 }
 
 commands["wotd"] = function() {
@@ -62,16 +62,37 @@ commands["dict"] = function() {
 }
 
 commands["play"] = function() {
-  url = '/v4/words.json/randomWord?hasDictionaryDef=true&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key='+key
+  url = '/v4/words.json/randomWord?hasDictionaryDef=true&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=2&maxLength=8&api_key='+key
   getData(url, playFunction)
 }
 
-// play
+// play functions
+
+  // save data
 
 function playFunction(info) {
   word = JSON.parse(info)["word"]
   console.log(word);
-  // TODO write the rest of the fundtion
+  hints=["def","syn","ant"]
+  dir = {
+    "def":[],
+    "syn":[],
+    "ant":[]
+  }
+  function ant() {
+    commands["ant"](gameOn)
+  }
+  function syn() {
+    commands["syn"](ant)
+  }
+  commands["def"](syn)
+}
+
+ // main game
+
+function gameOn() {
+  console.log(dir)
+  // TODO write the rest of the function
 }
 
 // http GET request
@@ -97,31 +118,51 @@ function getData(url, next, txt, callback, id) {
 
 }
 
+// data formatting
+
+function prettyFormat(responseString, txt, callback, id) {
+  info=JSON.parse(responseString)
+  if (id=="ex") {
+    info = info["examples"]
+    var index = 0
+    info.map(function(x) {info[index++]=x["text"]})
+  }
+  else if(id=="def"){
+    var index = 0
+    info.map(function(x) {info[index++]=x["text"]})
+  }
+  else {
+    if(info.length>0) {
+      info = info[0]["words"]
+    }
+    else {
+      info = []
+    }
+  }
+
+  if(type=="play") {
+    saveTo(info, txt, callback, id)
+  }
+  else {
+    print(info, txt, callback, id)
+  }
+}
+
 // printing function
 
-function prettyPrint(info, txt, callback) {
-  info=JSON.parse(info)
+function print(info, txt, callback) {
   var index = 1
-  if (info.length>=1) {
-    info = info[0]["words"]
-    info.map(function(x) { txt += index++ +") "+x+"\n"})
-  }
+  info.map(function(x) { txt += index++ +") "+x+"\n"})
   console.log(txt)
   if(typeof callback == "function") {
     callback()
   }
 }
 
-function prettyPrint2(info, txt, callback, id) {
-  if (id=="ex") {
-    info = JSON.parse(info)["examples"]
-  }
-  else if(id=="def"){
-    info = JSON.parse(info)
-  }
-  var index = 1
-  info.map(function(x) {txt += index++ +") "+x["text"]+"\n\n"})
-  console.log(txt)
+// save function
+
+function saveTo(info, txt, callback, id){
+  dir[id]=info
   if(typeof callback == "function") {
     callback()
   }
