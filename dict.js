@@ -15,28 +15,28 @@ if (type==null) {
 
 var commands = {}
 
-commands["syn"] = function() {
+commands["syn"] = function(callback) {
   url = '/v4/word.json/'+word+'/relatedWords?relationshipTypes=synonym&api_key='+key
   txt="Synonyms for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint,txt)
+  getData(url,prettyPrint,txt,callback)
 }
 
-commands["ant"] = function() {
+commands["ant"] = function(callback) {
   url = '/v4/word.json/'+word+'/relatedWords?relationshipTypes=antonym&api_key='+key
   txt="Antonyms for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint,txt)
+  getData(url,prettyPrint,txt,callback)
 }
 
-commands["def"] = function() {
+commands["def"] = function(callback) {
   url = '/v4/word.json/'+word+'/definitions?limit=5&api_key='+key
   txt="Definitions for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint2,txt,"def")
+  getData(url,prettyPrint2,txt,callback,"def")
 }
 
-commands["ex"] = function() {
+commands["ex"] = function(callback) {
   url = '/v4/word.json/'+word+'/examples?limit=5&api_key='+key
   txt="Examples for \""+word+"\" are :\n\n"
-  getData(url,prettyPrint2,txt,"ex")
+  getData(url,prettyPrint2,txt,callback,"ex")
 }
 
 commands["wotd"] = function() {
@@ -52,11 +52,13 @@ commands["wotd"] = function() {
 }
 
 commands["dict"] = function() {
-  // TO DO print the output in sequence
-  commands["def"]()
-  commands["syn"]()
-  commands["ant"]()
-  commands["ex"]()
+  function ant() {
+    commands["ant"](commands["ex"])
+  }
+  function syn() {
+    commands["syn"](ant)
+  }
+  commands["def"](syn)
 }
 
 commands["play"] = function() {
@@ -74,7 +76,7 @@ function playFunction(info) {
 
 // http GET request
 
-function getData(url, next, txt, id) {
+function getData(url, next, txt, callback, id) {
 
   var options = {
     host : 'api.wordnik.com',
@@ -89,7 +91,7 @@ function getData(url, next, txt, id) {
       responseString += data;
     });
     res.on('end', function() {
-      next(responseString, txt, id)
+      next(responseString, txt, callback, id)
     });
   }).end()
 
@@ -97,7 +99,7 @@ function getData(url, next, txt, id) {
 
 // printing function
 
-function prettyPrint(info, txt) {
+function prettyPrint(info, txt, callback) {
   info=JSON.parse(info)
   var index = 1
   if (info.length>=1) {
@@ -105,20 +107,24 @@ function prettyPrint(info, txt) {
     info.map(function(x) { txt += index++ +") "+x+"\n"})
   }
   console.log(txt)
+  if(typeof callback == "function") {
+    callback()
+  }
 }
 
-function prettyPrint2(info, txt, id) {
-
+function prettyPrint2(info, txt, callback, id) {
   if (id=="ex") {
     info = JSON.parse(info)["examples"]
   }
   else if(id=="def"){
     info = JSON.parse(info)
   }
-
   var index = 1
   info.map(function(x) {txt += index++ +") "+x["text"]+"\n\n"})
   console.log(txt)
+  if(typeof callback == "function") {
+    callback()
+  }
 }
 
 // execute command
