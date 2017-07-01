@@ -54,6 +54,16 @@ node-dict def word
 node-dict syn word
 ```
 
+### OR
+
+### Run using node  
+> Should be in the node-dict directory 
+
+```shell
+node dict def word
+
+node dict syn word
+```
 ## DOCS
 > The examples here are run with the shorthand ./dict.js in the node-dict directory
 

@@ -96,7 +96,7 @@ function playFunction(info) {
    output: process.stdout
  })
  var newHint = true
-
+ var clue
  function gameOn() {
 
   clue = newHint?hinter():""
@@ -142,13 +142,38 @@ function wrongGuess() {
 
   // hint generator
 
-function hinter() {
-  do {
-    var index1 = Math.floor(Math.random()*3)
-    var row = dir[hints[index1]]
-  } while ( row.length < 1)
-  var index2 = Math.floor(Math.random()*row.length)
-  return  hintsLong[index1]+" : "+row[index2]
+  function hinter() {
+    if(clue==null) {
+      var coinFlip = 1
+    }
+    else {
+      var coinFlip = Math.floor(Math.random()*2)
+    }
+    if (coinFlip) {
+      do {
+        var index1 = Math.floor(Math.random()*3)
+        var row = dir[hints[index1]]
+      } while ( row.length < 1)
+      var index2 = Math.floor(Math.random()*row.length)
+      return  hintsLong[index1]+" : "+row[index2]
+    }
+    else {
+      return "Jumbled word : "+jumble(word)
+    }
+  }
+
+  // word jumble
+
+function jumble(word) {
+  word=word.split("")
+  for(var i=word.length-1;i>=0;i--) {
+    var rand = Math.floor(Math.random()*i)
+    var temp =word[i]
+    word[i]=word[rand]
+    word[rand]=temp
+  }
+  word = word.join("")
+  return word
 }
 
 // http GET request
@@ -160,16 +185,16 @@ function getData(url, next, txt, callback, id) {
     port : 80,
     path : url,
     method : 'GET'
-  };
+  }
 
   http.request(options, function(res) {
-    var responseString = '';
+    var responseString = ''
     res.on('data', function(data) {
-      responseString += data;
-    });
+      responseString += data
+    })
     res.on('end', function() {
       next(responseString, txt, callback, id)
-    });
+    })
   }).end()
 
 }
@@ -227,4 +252,10 @@ function saveTo(info, txt, callback, id){
 
 // execute command
 
-commands[type]()
+if(typeof commands[type] == "function") {
+  commands[type]()
+}
+else {
+  console.log("Not a valid option")
+  rl.close()
+}
