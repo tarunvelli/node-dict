@@ -110,4 +110,4 @@ Play a word guessing game
 
 
 
-**Made with wordnik api**
+**Made with [wordnik api](http://developer.wordnik.com/docs.html)**

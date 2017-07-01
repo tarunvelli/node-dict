@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 var http = require('http')
+var readline = require('readline')
 var key = require('./key/key.js')
 var date = new Date()
 date = date.getUTCFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()
@@ -72,8 +73,9 @@ commands["play"] = function() {
 
 function playFunction(info) {
   word = JSON.parse(info)["word"]
-  console.log(word);
+  //console.log(word);
   hints=["def","syn","ant"]
+  hintsLong=["definition","synonym","antonym"]
   dir = {
     "def":[],
     "syn":[],
@@ -91,8 +93,31 @@ function playFunction(info) {
  // main game
 
 function gameOn() {
-  console.log(dir)
-  // TODO write the rest of the function
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+  var clue = hinter()
+  rl.question(clue +"\nGuess the word? ", function(answer) {
+    if (answer==word) {
+      console.log("You are right! the word is:", word)
+    }
+    else {
+      console.log("You are wrong. the word is:", word)
+    }
+    rl.close()
+  })
+}
+
+  // hint generator
+
+function hinter() {
+  do {
+    var index1 = Math.floor(Math.random()*3)
+    var row = dir[hints[index1]]
+  } while ( row.length < 1)
+  var index2 = Math.floor(Math.random()*row.length)
+  return  hintsLong[index1]+" : "+row[index2]
 }
 
 // http GET request
