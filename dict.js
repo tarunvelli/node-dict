@@ -73,7 +73,6 @@ commands["play"] = function() {
 
 function playFunction(info) {
   word = JSON.parse(info)["word"]
-  //console.log(word);
   hints=["def","syn","ant"]
   hintsLong=["definition","synonym","antonym"]
   dir = {
@@ -92,20 +91,52 @@ function playFunction(info) {
 
  // main game
 
-function gameOn() {
-  var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  })
-  var clue = hinter()
-  rl.question(clue +"\nGuess the word? ", function(answer) {
-    if (answer==word) {
-      console.log("You are right! the word is:", word)
+ var rl = readline.createInterface({
+   input: process.stdin,
+   output: process.stdout
+ })
+ var newHint = true
+
+ function gameOn() {
+
+  clue = newHint?hinter():""
+  newHint = false
+
+   rl.question("\n"+clue +"\nGuess the word: ", function(answer) {
+     if (answer==word || dir["syn"].includes(answer)) {
+       console.log("You guessed right!")
+       rl.close()
+     }
+     else {
+       console.log("\nYou guessed wrong :/\n1: Guess again\n2: New hint\n3: Show word and quit")
+       wrongGuess()
+     }
+   })
+ }
+
+  // options displayed on wrong guess
+
+function wrongGuess() {
+
+  rl.question("Enter your option\n", function(answer) {
+    if (answer=="1") {
+      console.log("Guess again")
+      gameOn()
+    }
+    else if (answer=="2") {
+      console.log("New hint")
+      newHint = true
+      gameOn()
+    }
+    else if (answer=="3") {
+      console.log("Show word and quit")
+      console.log(word)
+      rl.close()
     }
     else {
-      console.log("You are wrong. the word is:", word)
+      console.log("Invalid option")
+      wrongGuess()
     }
-    rl.close()
   })
 }
 
@@ -182,6 +213,7 @@ function print(info, txt, callback) {
   if(typeof callback == "function") {
     callback()
   }
+  rl.close()
 }
 
 // save function
