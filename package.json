@@ -4,13 +4,12 @@
   "description": "command line dictionary",
   "main": "dict.js",
   "scripts": {
-    "install":"echo 'module.exports = \"api key value\";' > key/key.js",
-    "postinstall":"chmod +x dict.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install": "echo 'module.exports = \"api key value\";' > key/key.js",
+    "postinstall": "chmod +x dict.js"
   },
   "preferGlobal": false,
   "bin": {
-    "node-dict":"dict.js"
+    "node-dict": "dict.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/tarunvelli/node-dict/issues"
   },
-  "homepage": "https://github.com/tarunvelli/node-dict#readme"
+  "homepage": "https://github.com/tarunvelli/node-dict#readme",
+  "dependencies": {
+    "request": "^2.83.0"
+  }
 }

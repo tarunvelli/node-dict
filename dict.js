@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var http = require('http')
+var request = require('request');
 var readline = require('readline')
 var key = require('./key/key.js')
 var date = new Date()
@@ -176,33 +176,27 @@ function jumble(word) {
   return word
 }
 
-// http GET request
+// GET request
 
 function getData(url, next, txt, callback, id) {
 
   var options = {
-    host : 'api.wordnik.com',
-    port : 80,
-    path : url,
-    method : 'GET'
+    json: true,
+    baseUrl: 'http://api.wordnik.com',
+    url: url,
+    method: 'GET'
   }
 
-  http.request(options, function(res) {
-    var responseString = ''
-    res.on('data', function(data) {
-      responseString += data
-    })
-    res.on('end', function() {
-      next(responseString, txt, callback, id)
-    })
-  }).end()
+  request(options, function(error, response, body) {
+    next(body, txt, callback, id)
+  })
 
 }
 
 // data formatting
 
 function prettyFormat(responseString, txt, callback, id) {
-  info=JSON.parse(responseString)
+  info=responseString
   if (id=="ex") {
     info = info["examples"]
     var index = 0
