@@ -29,70 +29,62 @@ module.exports = "value";
 ## USAGE
 
 ### To run from within the node-dict directory with shorthand
-> Recommended for testing and evaluating the tool
+> Recommended for testing
 
-eg.
 ```shell
-./dict.js def word
-
 ./dict.js syn word
 ```
 ### OR
 
 ### To install as a global command
-> For permanent use, installs the tool as a global command to execute from any dir in the terminal with the command "node-dict".
+> For permanent use, installs the script as a global command to execute from any dir in the terminal with the command "node-dict"
 
+to link
 ```shell
 sudo npm link
 ```
-
-
-eg.
+to run
 ```shell
-node-dict def word
-
 node-dict syn word
 ```
 
 ### OR
 
 ### Run using node  
-> Should be in the node-dict directory 
+> Should be in the node-dict directory
 
 ```shell
-node dict def word
-
 node dict syn word
 ```
 ## DOCS
-> The examples here are run with the shorthand ./dict.js in the node-dict directory
+> The examples here are run using node dict in the node-dict directory
 
 + **Definitions**
 
 Get definitions of a word
 ```shell
-./dict.js def word
+node dict def word
 ```
 
 + **Synonyms**
 
 To get synonyms of a word
 ```shell
-./dict.js syn word
+node dict syn word
 ```
 
 + **Antonyms**
 
 Get antonyms of a word
 ```shell
-./dict.js ant word
+node dict ant word
 ```
 
 + **Examples**
 
 Get examples of a word
 ```shell
-./dict.js ex word
+node dict ex word
 ```
 
 + **All related info**
@@ -100,7 +92,7 @@ Get examples of a word
 Get all the related info of a word,
 in order of : - definitions, synonyms, antonyms and examples
 ```shell
-./dict.js dict word
+node dict dict word
 ```
 
 + **Word of the day**
@@ -108,16 +100,14 @@ in order of : - definitions, synonyms, antonyms and examples
 Get all the related info of the word of the day,
 i.e. definitions, synonyms, antonyms and examples
 ```shell
-./dict.js
+node dict
 ```
 
 + **Play game**
 
 Play a word guessing game
 ```shell
-./dict.js play
+node dict play
 ```
-
-
 
 **Made with [wordnik api](http://developer.wordnik.com/docs.html)**
