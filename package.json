@@ -27,6 +27,6 @@
   },
   "homepage": "https://github.com/tarunvelli/node-dict#readme",
   "dependencies": {
-    "request": "^2.83.0"
+    "axios": "^0.17.1"
   }
 }

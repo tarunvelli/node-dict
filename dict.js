@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var request = require('request')
+var axios = require('axios')
 var readline = require('readline')
 var key = require('./key/key.js')
 var date = new Date()
@@ -180,16 +180,14 @@ function jumble (word) {
 
 function getData (url, next, txt, callback, id) {
   var options = {
-    json: true,
-    baseUrl: 'http://api.wordnik.com',
     url: url,
-    method: 'GET'
+    baseURL: 'http://api.wordnik.com',
+    method: 'get'
   }
 
-  request(options, function (error, response, body) {
-    if (error) console.log(error)
-    next(body, txt, callback, id)
-  })
+  axios(options)
+  .then(response => next(response.data, txt, callback, id))
+  .catch(err => console.log(err))
 }
 
 // data formatting
