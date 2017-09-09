@@ -16,60 +16,70 @@ if (type == null) {
 
 var commands = {}
 
-commands['syn'] = callback => {
+commands['syn'] = async () => {
   var url = `/v4/word.json/${word}/relatedWords?relationshipTypes=synonym&api_key=${key}`
-  var txt = `Synonyms for '${word}' are :\n\n`
-  getData(url, prettyFormat, txt, callback, 'syn')
+  var txt = `Synonyms for '${word}' are :\n`
+  await getData(url)
+  .then(response => processData(response.data, txt, 'syn'))
+  .catch(err => console.log(err))
+  return Promise.resolve()
 }
 
-commands['ant'] = callback => {
+commands['ant'] = async () => {
   var url = `/v4/word.json/${word}/relatedWords?relationshipTypes=antonym&api_key=${key}`
-  var txt = `Antonyms for '${word}' are :\n\n`
-  getData(url, prettyFormat, txt, callback, 'ant')
+  var txt = `Antonyms for '${word}' are :\n`
+  await getData(url)
+  .then(response => processData(response.data, txt, 'ant'))
+  .catch(err => console.log(err))
+  return Promise.resolve()
 }
 
-commands['def'] = callback => {
+commands['def'] = async () => {
   var url = `/v4/word.json/${word}/definitions?limit=5&api_key=${key}`
-  var txt = `Definitions for '${word}' are :\n\n`
-  getData(url, prettyFormat, txt, callback, 'def')
+  var txt = `Definitions for '${word}' are :\n`
+  await getData(url)
+  .then(response => processData(response.data, txt, 'def'))
+  .catch(err => console.log(err))
+  return Promise.resolve()
 }
 
-commands['ex'] = callback => {
+commands['ex'] = async () => {
   var url = `/v4/word.json/${word}/examples?limit=5&api_key=${key}`
-  var txt = `Examples for '${word}' are :\n\n`
-  getData(url, prettyFormat, txt, callback, 'ex')
+  var txt = `Examples for '${word}' are :\n`
+  await getData(url)
+  .then(response => processData(response.data, txt, 'ex'))
+  .catch(err => console.log(err))
+  return Promise.resolve()
 }
 
-commands['wotd'] = () => {
+commands['wotd'] = async () => {
   var url = `/v4/words.json/wordOfTheDay?date=${date}&api_key=${key}`
   var txt = 'Word of the day is : '
-  getData(url, localPrint, txt)
+  await getData(url)
+  .then(response => {
+    word = response.data.word
+    console.log(`${txt} ${word}\n`)
+  })
+  .catch(err => console.log(err))
 
-  function localPrint (info, txt) {
-    word = info.word
-    console.log(`${txt} ${word}\n\n`)
-    commands['dict']()
-  }
+  commands['dict']()
 }
 
-commands['dict'] = () => {
-  function ant () {
-    commands['ant'](commands['ex'])
-  }
-  function syn () {
-    commands['syn'](ant)
-  }
-  commands['def'](syn)
+commands['dict'] = async () => {
+  await commands['def']()
+  await commands['syn']()
+  await commands['ant']()
+  await commands['ex']()
 }
 
 commands['play'] = () => {
   var url = `/v4/words.json/randomWord?hasDictionaryDef=true&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=2&maxLength=8&api_key=${key}`
-  getData(url, playFunction)
+  getData(url)
+  .then(response => playFunction(response.data))
+  .catch(err => console.log(err))
 }
 
 // play functions
-
-// save data
 
 var hints = ['def', 'syn', 'ant']
 var hintsLong = ['definition', 'synonym', 'antonym']
@@ -79,20 +89,17 @@ var dir = {
   'ant': []
 }
 
-function playFunction (info) {
+async function playFunction (info) {
   word = info.word
   dir = {
     'def': [],
     'syn': [],
     'ant': []
   }
-  function ant () {
-    commands['ant'](gameOn)
-  }
-  function syn () {
-    commands['syn'](ant)
-  }
-  commands['def'](syn)
+  await commands['def']()
+  await commands['syn']()
+  await commands['ant']()
+  gameOn()
 }
 
 // main game
@@ -103,16 +110,17 @@ var rl = readline.createInterface({
 })
 var newHint = true
 var clue
+
 function gameOn () {
   clue = newHint ? hinter() : ''
   newHint = false
 
-  rl.question(`\n ${clue} \nGuess the word: `, function (answer) {
+  rl.question(`\n${clue} \nGuess the word: `, function (answer) {
     if (answer === word || dir['syn'].includes(answer)) {
       console.log('You guessed right!')
       rl.close()
     } else {
-      console.log('\nYou guessed wrong :/\n1: Guess again\n2: New hint\n3: Show word and quit')
+      console.log('\nYou guessed wrong :/\n\n1: Guess again\n2: New hint\n3: Show word and quit')
       wrongGuess()
     }
   })
@@ -178,63 +186,33 @@ function jumble (word) {
 
 // GET request
 
-function getData (url, next, txt, callback, id) {
+function getData (url, next, txt, id) {
   var options = {
     url: url,
     baseURL: 'http://api.wordnik.com',
     method: 'get'
   }
 
-  axios(options)
-  .then(response => next(response.data, txt, callback, id))
-  .catch(err => console.log(err))
+  return axios(options)
 }
 
 // data formatting
 
-function prettyFormat (responseString, txt, callback, id) {
-  var info = responseString
-  var index
+function processData (response, txt, id) {
   if (id === 'ex') {
-    info = info['examples']
-    index = 0
-    info.map(function (x) { info[index++] = x['text'] })
+    response = response.examples.map(example => example.text)
   } else if (id === 'def') {
-    index = 0
-    info.map(function (x) { info[index++] = x['text'] })
-  } else {
-    if (info.length > 0) {
-      info = info[0]['words']
-    } else {
-      info = []
-    }
+    response = response.map(definition => definition.text)
+  } else if (response.length) {
+    response = response[0].words
   }
 
   if (type === 'play') {
-    saveTo(info, txt, callback, id)
+    dir[id] = response
   } else {
-    print(info, txt, callback, id)
-  }
-}
-
-// printing function
-
-function print (info, txt, callback) {
-  var index = 1
-  info.map(x => { txt += `${index++} ) ${x} \n` })
-  console.log(txt)
-  if (typeof callback === 'function') {
-    callback()
-  }
-  rl.close()
-}
-
-// save function
-
-function saveTo (info, txt, callback, id) {
-  dir[id] = info
-  if (typeof callback === 'function') {
-    callback()
+    txt = txt + response.reduce((acc, cur, index) => acc + `${index + 1}) ${cur}\n`, '\n')
+    console.log(txt)
+    rl.close()
   }
 }
 
