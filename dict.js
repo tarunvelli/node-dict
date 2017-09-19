@@ -10,7 +10,7 @@ const queryWord = process.argv[3]
 
 var commands = {}
 
-commands['syn'] = async (parsedWord) => {
+commands.syn = async (parsedWord) => {
   var url = `/v4/word.json/${parsedWord}/relatedWords?relationshipTypes=synonym&api_key=${key}`
   var txt = `Synonyms for '${parsedWord}' are :\n`
 
@@ -22,7 +22,7 @@ commands['syn'] = async (parsedWord) => {
   return Promise.resolve()
 }
 
-commands['ant'] = async (parsedWord) => {
+commands.ant = async (parsedWord) => {
   var url = `/v4/word.json/${parsedWord}/relatedWords?relationshipTypes=antonym&api_key=${key}`
   var txt = `Antonyms for '${parsedWord}' are :\n`
 
@@ -34,7 +34,7 @@ commands['ant'] = async (parsedWord) => {
   return Promise.resolve()
 }
 
-commands['def'] = async (parsedWord) => {
+commands.def = async (parsedWord) => {
   var url = `/v4/word.json/${parsedWord}/definitions?limit=5&api_key=${key}`
   var txt = `Definitions for '${parsedWord}' are :\n`
 
@@ -46,7 +46,7 @@ commands['def'] = async (parsedWord) => {
   return Promise.resolve()
 }
 
-commands['ex'] = async (parsedWord) => {
+commands.ex = async (parsedWord) => {
   var url = `/v4/word.json/${parsedWord}/examples?limit=5&api_key=${key}`
   var txt = `Examples for '${parsedWord}' are :\n`
 
@@ -58,7 +58,7 @@ commands['ex'] = async (parsedWord) => {
   return Promise.resolve()
 }
 
-commands['wotd'] = async () => {
+commands.wotd = async () => {
   var date = new Date()
   date = `${date.getUTCFullYear()}-${(date.getMonth() + 1)}-${(date.getDate())}`
 
@@ -76,14 +76,14 @@ commands['wotd'] = async () => {
   commands['dict'](parsedWord)
 }
 
-commands['dict'] = async (parsedWord) => {
+commands.dict = async (parsedWord) => {
   await commands['def'](parsedWord)
   await commands['syn'](parsedWord)
   await commands['ant'](parsedWord)
   await commands['ex'](parsedWord)
 }
 
-commands['play'] = () => {
+commands.play = () => {
   var url = `/v4/words.json/randomWord?hasDictionaryDef=true&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=2&maxLength=8&api_key=${key}`
   getData(url)
   .then(response => playFunction(response.data.word))
@@ -92,16 +92,14 @@ commands['play'] = () => {
 
 // play functions
 
-var hints = ['def', 'syn', 'ant']
-var hintsLong = ['definition', 'synonym', 'antonym']
-var dir = {
+let hintStore = {
   'def': [],
   'syn': [],
   'ant': []
 }
 
 async function playFunction (randomWord) {
-  dir = {
+  hintStore = {
     'def': [],
     'syn': [],
     'ant': []
@@ -118,7 +116,7 @@ async function playFunction (randomWord) {
 
 // main game
 
-var rl = readline.createInterface({
+const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 })
@@ -127,7 +125,7 @@ function gameOn (showHint, randomWord) {
   var clue = showHint ? hinter(randomWord) : ''
 
   rl.question(`\n${clue} \nGuess the word: `, answer => {
-    if (answer === randomWord || dir['syn'].includes(answer)) {
+    if (answer === randomWord || hintStore['syn'].includes(answer)) {
       console.log('You guessed right!')
       rl.close()
     } else {
@@ -161,17 +159,31 @@ function wrongGuess (randomWord) {
 // hint generator
 
 function hinter (parsedWord) {
+  var hints = Object.keys(hintStore)
   var coinFlip = Math.floor(Math.random() * 2)
 
   if (coinFlip) {
     do {
-      var index1 = Math.floor(Math.random() * 3)
-      var row = dir[hints[index1]]
-    } while (row.length < 1)
-    var index2 = Math.floor(Math.random() * row.length)
-    return `${hintsLong[index1]} : ${row[index2]}`
+      var hintType = Math.floor(Math.random() * 3)
+      var row = hintStore[hints[hintType]]
+    } while (!row.length)
+
+    var hintIndex = Math.floor(Math.random() * row.length)
+    return `${expand(hints[hintType])} : ${row[hintIndex]}`
   } else {
     return `Jumbled word : ${jumble(parsedWord)}`
+  }
+}
+
+// expand hint type
+
+function expand (inType) {
+  if (inType === 'syn') {
+    return 'Synonym'
+  } else if (inType === '') {
+    return 'Antonym'
+  } else {
+    return 'Definition'
   }
 }
 
@@ -224,13 +236,15 @@ function print (response, txt, id) {
   if (type !== 'play') {
     console.log(txt + response)
   } else {
-    dir[id] = response
+    hintStore[id] = response
   }
 }
 
 // execute command
 
-if (typeof commands[type] === 'function') {
+if (key === 'api key value') {
+  console.log('Invalid API key. Add a valid key in /key/key.js')
+} else if (typeof commands[type] === 'function') {
   commands[type](queryWord)
 } else {
   console.log('Not a valid option')
