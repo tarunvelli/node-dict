@@ -15,9 +15,9 @@ commands.syn = async (parsedWord) => {
   var txt = `Synonyms for '${parsedWord}' are :\n`
 
   await getData(url)
-  .then(response => processData(response.data, 'syn'))
-  .then(response => print(response, txt, 'syn'))
-  .catch(err => console.log(err))
+    .then(response => processData(response.data, 'syn'))
+    .then(response => print(response, txt, 'syn'))
+    .catch(err => console.log(err))
 
   return Promise.resolve()
 }
@@ -27,9 +27,9 @@ commands.ant = async (parsedWord) => {
   var txt = `Antonyms for '${parsedWord}' are :\n`
 
   await getData(url)
-  .then(response => processData(response.data, 'ant'))
-  .then(response => print(response, txt, 'ant'))
-  .catch(err => console.log(err))
+    .then(response => processData(response.data, 'ant'))
+    .then(response => print(response, txt, 'ant'))
+    .catch(err => console.log(err))
 
   return Promise.resolve()
 }
@@ -39,9 +39,9 @@ commands.def = async (parsedWord) => {
   var txt = `Definitions for '${parsedWord}' are :\n`
 
   await getData(url)
-  .then(response => processData(response.data, 'def'))
-  .then(response => print(response, txt, 'def'))
-  .catch(err => console.log(err))
+    .then(response => processData(response.data, 'def'))
+    .then(response => print(response, txt, 'def'))
+    .catch(err => console.log(err))
 
   return Promise.resolve()
 }
@@ -51,9 +51,9 @@ commands.ex = async (parsedWord) => {
   var txt = `Examples for '${parsedWord}' are :\n`
 
   await getData(url)
-  .then(response => processData(response.data, 'ex'))
-  .then(response => print(response, txt, 'ex'))
-  .catch(err => console.log(err))
+    .then(response => processData(response.data, 'ex'))
+    .then(response => print(response, txt, 'ex'))
+    .catch(err => console.log(err))
 
   return Promise.resolve()
 }
@@ -67,11 +67,11 @@ commands.wotd = async () => {
   var parsedWord
 
   await getData(url)
-  .then(response => {
-    parsedWord = response.data.word
-    console.log(`${txt} ${parsedWord}\n`)
-  })
-  .catch(err => console.log(err))
+    .then(response => {
+      parsedWord = response.data.word
+      console.log(`${txt} ${parsedWord}\n`)
+    })
+    .catch(err => console.log(err))
 
   commands['dict'](parsedWord)
 }
@@ -85,25 +85,31 @@ commands.dict = async (parsedWord) => {
 
 commands.play = () => {
   var url = `/v4/words.json/randomWord?hasDictionaryDef=true&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=2&maxLength=8&api_key=${key}`
+  console.log('\nNew Game!')
   getData(url)
-  .then(response => playFunction(response.data.word))
-  .catch(err => console.log(err))
+    .then(response => playFunction(response.data.word))
+    .catch(err => console.log(err))
 }
 
 // play functions
 
-let hintStore = {
-  'def': [],
-  'syn': [],
-  'ant': []
+class HintStorage {
+  constructor () {
+    this.def = []
+    this.syn = []
+    this.ant = []
+  }
+  clean () {
+    this.def = []
+    this.syn = []
+    this.ant = []
+  }
 }
 
+var hintStore = new HintStorage()
+
 async function playFunction (randomWord) {
-  hintStore = {
-    'def': [],
-    'syn': [],
-    'ant': []
-  }
+  hintStore.clean()
 
   await Promise.all([
     commands['def'](randomWord),
@@ -126,10 +132,21 @@ function gameOn (showHint, randomWord) {
 
   rl.question(`\n${clue} \nGuess the word: `, answer => {
     if (answer === randomWord || hintStore['syn'].includes(answer)) {
-      console.log('You guessed right!')
-      rl.close()
+      rl.question(`You guessed right! Play again? (Y/N) : `, subAnswer => {
+        if (subAnswer.toUpperCase() === 'Y') {
+          commands.play()
+        } else {
+          rl.close()
+        }
+      })
     } else {
-      console.log('\nYou guessed wrong :/\n\n1: Guess again\n2: New hint\n3: Show word and quit')
+      console.log(`You guessed wrong :/
+
+        1: Guess again
+        2: New hint
+        3: Show word and quit
+        4: Show word and play again
+      `)
       wrongGuess(randomWord)
     }
   })
@@ -149,6 +166,10 @@ function wrongGuess (randomWord) {
       console.log('Show word and quit')
       console.log(randomWord)
       rl.close()
+    } else if (answer === '4') {
+      console.log('Show word and play again')
+      console.log(randomWord)
+      commands.play()
     } else {
       console.log('Invalid option')
       wrongGuess(randomWord)
