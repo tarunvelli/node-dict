@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+require('dotenv').config()
+
 const axios = require('axios')
 const readline = require('readline')
 const key = require('./key/key.js')

@@ -1,5 +1,3 @@
-API key to be entered in key/key.js as
+API key to be entered in .env as
 
-` module.exports = "value"; `
-
-This is done to include key.js in .gitignore so that the key value is not pushed into public repos by mistake.
+WORDNIK_API_KEY=xxxxx
