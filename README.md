@@ -4,7 +4,7 @@
 + npm
 + unix/linux*
 
-> Has not been tested on windows, some features such as installing as global command, shorthand of ./dict.js etc. might not work on windows.  
+> Has not been tested on windows, some features such as installing as global command, shorthand of ./dict.js etc. might not work on windows.
 
 ## SETUP
 
@@ -20,11 +20,10 @@ cd node-dict
 ```shell
 npm install
 ```
-### Enter your api key in key/key.js as
-```javascript
-module.exports = "value";
+### Enter your api key in .env as
+```shell
+WORDNIK_API_KEY=xxxxx
 ```
-> This is done to include key.js in .gitignore so that the key value is not pushed into public repos by mistake.
 
 ## USAGE
 
@@ -50,7 +49,7 @@ node-dict syn word
 
 ### OR
 
-### Run using node  
+### Run using node
 > Should be in the node-dict directory
 
 ```shell
